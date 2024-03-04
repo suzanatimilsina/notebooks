@@ -266,15 +266,25 @@ def subset_upstream(hydrofabric: str, ids: str) -> None:
     p = Path(hydrofabric)
     vpu = p.parts[-1].split('_')[-1].split('.')[0]
     parquet_name = f'nextgen_{vpu}_cfe_noahowp.parquet'
-    parquet_path =  (str(Path(*p.parts[0:-1])/parquet_name).
-                     replace(':/','://'))
-    model_attributes = pq.ParquetDataset(
-        parquet_path,
-        filesystem=s3fs.S3FileSystem(anon=True),
-    ).read_pandas().to_pandas()
-    model_attributes = (model_attributes
-                        .set_index("divide_id")
-                        .loc[cat_ids])
+    # parquet_path =  (str(Path(*p.parts[0:-1])/parquet_name).
+    #                  replace(':/','://'))
+    parquet_path = f'../nextgen_12_cfe_noahowp.parquet'
+    # model_attributes = pq.ParquetDataset(
+    #     parquet_path,
+    #     filesystem=s3fs.S3FileSystem(anon=True),
+    # ).read_pandas().to_pandas()
+    # model_attributes = (model_attributes
+    #                     .set_index("divide_id")
+    #                     .loc[cat_ids])
+
+    #If running from a local machine modify the model attributes as follows
+
+    # Read the Parquet file
+    model_attributes = pd.read_parquet(parquet_path)
+
+    # Set 'divide_id' as the index and filter rows based on 'cat_ids'
+    model_attributes = model_attributes.set_index("divide_id").loc[cat_ids]                    
+
 
     # Unsure if hydrolocations and lakes are being subset correctly.
     logging.info('Subsetting Hydro Locations')
